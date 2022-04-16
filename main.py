@@ -7,6 +7,8 @@ def get_arguments():
     parser.add_argument("-b", "--base", help = "Select base for chain")
     parser.add_argument("-i", "--input", help = "Select input token address (default base address)")
     parser.add_argument("-o", "--output", help = "Select output token address (default base address)")
+    parser.add_argument("-j", "--indecimals", help = "Set input token decimals (default 18)")
+    parser.add_argument("-q", "--outdecimals", help = "Set output token decimals (default 18)")
     return parser.parse_args()
 
 
@@ -18,6 +20,10 @@ async def main():
         if dex.base_symbol == args.base:
             input = args.input if args.input is not None else dex.base_address
             output = args.output if args.output is not None else dex.base_address
+            if args.indecimals is not None:
+                dex.decimals(input, fallback = int(args.indecimals))
+            if args.outdecimals is not None:
+                dex.decimals(output, fallback = int(args.outdecimals))
             if dex.exist(input, output):
                 value = {
                     'price': dex.price(input, output),
