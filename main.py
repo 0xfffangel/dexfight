@@ -7,27 +7,36 @@ def get_arguments():
     parser.add_argument("-b", "--base", help = "Select base for chain")
     parser.add_argument("-i", "--input", help = "Select input token address (default base address)")
     parser.add_argument("-o", "--output", help = "Select output token address (default base address)")
+    parser.add_argument("-r", "--routing", help = "Allow intermediate token address (default disabled, * = custom dex token)")
     parser.add_argument("-j", "--indecimals", help = "Set input token decimals (default 18)")
     parser.add_argument("-q", "--outdecimals", help = "Set output token decimals (default 18)")
     return parser.parse_args()
 
-
 async def main():
     args = get_arguments()
+
+    args.output = "0x818ec0a7fe18ff94269904fced6ae3dae6d6dc0b"
+    args.outdecimals = 6
+    args.base = "GLMR"
+    args.routing = "*"
+
     print("{:<12} {:<20} {:<20} {:<20}".format('Dex','Price','Reserve','Liquidity'))
     values = {}
     for dex in multidex.__all__:
         if dex.base_symbol == args.base:
             input = args.input if args.input is not None else dex.base_address
             output = args.output if args.output is not None else dex.base_address
-            if args.indecimals is not None:
-                dex.decimals(input, fallback = int(args.indecimals))
-            if args.outdecimals is not None:
-                dex.decimals(output, fallback = int(args.outdecimals))
-            if dex.exist(input, output):
+            intermediate = args.routing if args.routing is not None else None
+            intermediate = dex.token if args.routing == "*" else intermediate
+
+            if dex.exist(input, output, intermediate):
+                if args.indecimals is not None:
+                    dex.decimals(input, fallback = int(args.indecimals))
+                if args.outdecimals is not None:
+                    dex.decimals(output, fallback = int(args.outdecimals))
                 value = {
-                    'price': dex.price(input, output),
-                    'reserve_ratio': dex.reserve_ratio(input, output),
+                    'price': dex.price(input, output, intermediate),
+                    'reserve_ratio': dex.reserve_ratio(input, output, intermediate),
                     'liquidity': dex.liquidity(input, output)
                 }
                 values[dex.platform] = value
@@ -48,7 +57,7 @@ async def main():
             gaps.append(round(gap, 6))
         print(format_row.format("", *gaps))
 
-    
+
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
