@@ -15,11 +15,6 @@ def get_arguments():
 async def main():
     args = get_arguments()
 
-    args.output = "0x818ec0a7fe18ff94269904fced6ae3dae6d6dc0b"
-    args.outdecimals = 6
-    args.base = "GLMR"
-    args.routing = "*"
-
     print("{:<12} {:<20} {:<20} {:<20}".format('Dex','Price','Reserve','Liquidity'))
     values = {}
     for dex in multidex.__all__:
@@ -37,14 +32,16 @@ async def main():
                 value = {
                     'price': dex.price(input, output, intermediate),
                     'reserve_ratio': dex.reserve_ratio(input, output, intermediate),
-                    'liquidity': dex.liquidity(input, output)
+                    'liquidity_in': dex.liquidity_in(input, output, intermediate),
+                    'liquidity_out': dex.liquidity_out(input, output, intermediate)
                 }
                 values[dex.platform] = value
                 print("{:<12} {:<20} {:<20} {:<20}".format(
                     dex.platform, 
                     value['price'],
-                    value['reserve_ratio'], 
-                    value['liquidity']))
+                    value['reserve_ratio'],  
+                    value['liquidity_in'],
+                    value['liquidity_out']))
     print("")
     header = list(values.keys())
     header.insert(0, "")
