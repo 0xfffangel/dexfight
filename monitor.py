@@ -95,7 +95,7 @@ async def main(conf ):
 
 def dex_read(dex, input, output, intermediate = None):
     return {
-        'platform': dex.platform,
+        'platform': dex.platform + ('' if intermediate is None else '_dexcoin'),
         'price': dex.price(input, output, intermediate),
         'reserve_ratio': dex.reserve_ratio(input, output, intermediate, refresh = True),
         'liquidity_in': dex.liquidity_in(input, output, intermediate),
