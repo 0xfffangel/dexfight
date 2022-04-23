@@ -38,8 +38,7 @@ class Config:
                    json['timeout'], json['daemon'])
 
 async def looper():
-    #config_file = sys.argv[1]
-    config_file = "config.json"
+    config_file = sys.argv[1]
     conf = Config.read(config_file)
     file_handler = logging.FileHandler(filename=conf.log_file)
     stdout_handler = logging.StreamHandler(sys.stdout)
@@ -50,7 +49,7 @@ async def looper():
         except Exception as err:
             print("ERROR {err}")
         finally:
-            if conf.daemon:
+            if not conf.daemon:
                 return
             await asyncio.sleep(conf.timeout)
 
