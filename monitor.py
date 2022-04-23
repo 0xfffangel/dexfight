@@ -38,7 +38,8 @@ class Config:
                    json['timeout'], json['daemon'])
 
 async def looper():
-    config_file = sys.argv[1]
+    #config_file = sys.argv[1]
+    config_file = "config.json"
     conf = Config.read(config_file)
     file_handler = logging.FileHandler(filename=conf.log_file)
     stdout_handler = logging.StreamHandler(sys.stdout)
@@ -47,7 +48,7 @@ async def looper():
         try:
             await main(conf)
         except Exception as err:
-            print("ERROR {err}")
+            print("ERROR", err)
         finally:
             if not conf.daemon:
                 return
@@ -66,12 +67,12 @@ async def main(conf ):
             intermediate = None
             if dex.exist(input, output):
                 value = dex_read(dex, input, output)
-                if value['reserves'][0] > 1 and value['reserves'][1] > 1:
+                if value['liquidity_in'] > 1 and value['liquidity_out'] > 1:
                     values[dex.platform] = value
             intermediate = dex.token
             if dex.exist(input, output, intermediate):
                 value = dex_read(dex, input, output, intermediate)
-                if value['reserves'][0] > 1 and value['reserves'][1] > 1:
+                if value['liquidity_in'] > 1 and value['liquidity_out'] > 1:
                     values[dex.platform + "_dexcoin"] = value
 
     for k, v in values.items():
@@ -96,8 +97,7 @@ def dex_read(dex, input, output, intermediate = None):
     return {
         'platform': dex.platform,
         'price': dex.price(input, output, intermediate),
-        'reserves': dex.reserves(input, output, intermediate, refresh = True),
-        'reserve_ratio': dex.reserve_ratio(input, output, intermediate),
+        'reserve_ratio': dex.reserve_ratio(input, output, intermediate, refresh = True),
         'liquidity_in': dex.liquidity_in(input, output, intermediate),
         'liquidity_out': dex.liquidity_out(input, output, intermediate)
     }
