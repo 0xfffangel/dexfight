@@ -8,7 +8,7 @@ import json
 import logging
 
 class Config:
-    def __init__(self, base, input, output, routing, indecimals, outdecimals, min_gap):
+    def __init__(self, base, input, output, routing, indecimals, outdecimals, min_gap, timeout, daemon):
         self.base = base
         self.input = input
         self.output = output
@@ -16,6 +16,8 @@ class Config:
         self.indecimals = indecimals
         self.outdecimals = outdecimals
         self.min_gap = min_gap
+        self.timeout = timeout
+        self.daemon = daemon
     
     @staticmethod
     def read(conf_file):
@@ -32,17 +34,27 @@ class Config:
     def from_json(json):
       return Config(json['base'],
                    json['input'], json['output'], json['routing'],
-                   json['indecimals'], json['outdecimals'], json['min_gap'])
+                   json['indecimals'], json['outdecimals'], json['min_gap'],
+                   json['timeout'], json['daemon'])
 
-async def main():
-
+async def looper():
     #config_file = sys.argv[1]
     config_file = "config.json"
     conf = Config.read(config_file)
     file_handler = logging.FileHandler(filename=conf.log_file)
     stdout_handler = logging.StreamHandler(sys.stdout)
     handlers = [file_handler, stdout_handler]
+    while True:
+        try:
+            await main(conf)
+        except Exception as err:
+            print("ERROR {err}")
+        finally:
+            if conf.daemon:
+                return
+            await asyncio.sleep(conf.timeout)
 
+async def main(conf ):
     values = {}
     for dex in multidex.__all__:
         if dex.base_symbol == conf.base:
@@ -103,4 +115,4 @@ def appendcsv(file, dict):
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    loop.run_until_complete(looper())

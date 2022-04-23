@@ -5,5 +5,7 @@
     "routing": "*",
     "indecimals": null,
     "outdecimals": 6,
-    "min_gap": 0.01
+    "min_gap": 0.01,
+    "daemon": true,
+    "timeout": 30
 }
