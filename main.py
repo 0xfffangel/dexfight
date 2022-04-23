@@ -15,7 +15,7 @@ def get_arguments():
 async def main():
     args = get_arguments()
 
-    print("{:<12} {:<20} {:<20} {:<20}".format('Dex','Price','Reserve','Liquidity'))
+    print("{:<12} {:<20} {:<20} {:<20} {:<20}".format('Dex','Price','Reserve','Liquidity In','Liquidity Out'))
     values = {}
     for dex in multidex.__all__:
         if dex.base_symbol == args.base:
@@ -36,7 +36,7 @@ async def main():
                     'liquidity_out': dex.liquidity_out(input, output, intermediate)
                 }
                 values[dex.platform] = value
-                print("{:<12} {:<20} {:<20} {:<20}".format(
+                print("{:<12} {:<20} {:<20} {:<20} {:<20}".format(
                     dex.platform, 
                     value['price'],
                     value['reserve_ratio'],  
