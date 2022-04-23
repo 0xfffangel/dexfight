@@ -31,7 +31,7 @@ async def main():
                     dex.decimals(output, fallback = int(args.outdecimals))
                 value = {
                     'price': dex.price(input, output, intermediate),
-                    'reserve_ratio': dex.reserve_ratio(input, output, intermediate),
+                    'reserve_ratio': dex.reserve_ratio(input, output, intermediate, refresh = True),
                     'liquidity_in': dex.liquidity_in(input, output, intermediate),
                     'liquidity_out': dex.liquidity_out(input, output, intermediate)
                 }
