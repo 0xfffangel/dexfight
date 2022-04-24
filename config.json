@@ -4,8 +4,9 @@
     "output": "0x818ec0a7fe18ff94269904fced6ae3dae6d6dc0b",
     "routing": "*",
     "indecimals": null,
-    "outdecimals": 6,
+    "outdecimals": null,
     "min_gap": 0.01,
+    "min_base_liquidity": 2,
     "daemon": true,
     "timeout": 30
 }
