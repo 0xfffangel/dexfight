@@ -8,7 +8,7 @@ import asyncio
 import json
 
 conf_dir = 'configs'
-log_file = 'logs/bot.log'
+log_file = 'bot.log'
 
 file_handler = logging.FileHandler(filename=log_file)
 stdout_handler = logging.StreamHandler(sys.stdout)
