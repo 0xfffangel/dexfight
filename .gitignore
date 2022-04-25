@@ -4,4 +4,4 @@ venv
 *.csv
 configs
 logs
-__pychache__
+__pycache__
