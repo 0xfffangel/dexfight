@@ -3,4 +3,5 @@ venv
 *.log
 *.csv
 configs
-builds
+logs
+__pychache__
