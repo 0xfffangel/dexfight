@@ -145,20 +145,20 @@ async def main(
         raise Exception("amount {} >= balance {}".format(amount, inBalance))
 
     # swap from base to token
-    tx = buy(dex_low, dex_low_token, amount, path_low_middleToken, wallet_address, private_key)
+    tx = buy(dex_high, dex_high_token, amount, path_high_middleToken, wallet_address, private_key)
     print(tx)
 
-    print("{}: inBalance {}".format(path_low_inToken, dex_low.balance(wallet_address, path_low_inToken)))
-    print("{}: outBalance {}".format(path_low_outToken, dex_low.balance(wallet_address, path_low_outToken)))
+    print("{}: inBalance {}".format(path_high_inToken, dex_high.balance(wallet_address, path_high_inToken)))
+    print("{}: outBalance {}".format(path_high_outToken, dex_high.balance(wallet_address, path_high_outToken)))
 
     # swap from token to base
-    last_outBalance = dex0.balance(wallet_address, path_low_outToken)
+    last_outBalance = dex0.balance(wallet_address, path_high_outToken)
     amount = last_outBalance - outBalance
-    tx = sell(dex_high, dex_high_token, amount, path_high_middleToken, wallet_address, private_key)
+    tx = sell(dex_low, dex_low_token, amount, path_low_middleToken, wallet_address, private_key)
     print(tx)
 
-    print("{}: inBalance {}".format(path_high_inToken, dex0.balance(wallet_address, path_high_inToken)))
-    print("{}: outBalance {}".format(path_high_outToken, dex0.balance(wallet_address, path_high_outToken)))
+    print("{}: inBalance {}".format(path_low_inToken, dex0.balance(wallet_address, path_low_inToken)))
+    print("{}: outBalance {}".format(path_low_outToken, dex0.balance(wallet_address, path_low_outToken)))
 
     # profit / loss
     last_inBalance = dex0.balance(wallet_address, path_low_inToken)
