@@ -54,7 +54,7 @@ async def looper():
                 return
             await asyncio.sleep(conf.timeout)
 
-async def main(conf ):
+async def main(conf):
     values = {}
     for dex in multidex.__all__:
         if dex.base_symbol == conf.base:
@@ -67,14 +67,15 @@ async def main(conf ):
             intermediate = None
             if dex.exist(input, output):
                 value = dex_read(dex, input, output)
-                if value['liquidity_in'] > conf.min_base_liquidity and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
+                if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
                     values[dex.platform] = value
             intermediate = dex.token
             if dex.exist(input, output, intermediate):
                 value = dex_read(dex, input, output, intermediate)
-                if value['liquidity_in'] > conf.min_base_liquidity and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
+                if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
                     values[dex.platform + "_dexcoin"] = value
 
+    res = []
     for k, v in values.items():
         for kk, vv in values.items():
             gap = (v['reserve_ratio'] - vv['reserve_ratio']) / v['reserve_ratio']
@@ -92,6 +93,8 @@ async def main(conf ):
                 text = ', '.join([str(x) for x in list])
                 print(text)
                 appendcsv(conf.csv_file, out)
+                res.append(out)
+    return res
 
 def dex_read(dex, input, output, intermediate = None):
     return {
