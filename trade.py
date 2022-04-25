@@ -27,7 +27,6 @@ def buy(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_a
     if not dex.check_approval(wallet_address, token):
         raise Exception("UnapprovedExpection: " + wallet_address)
     tx = dex.swapFromBaseToTokens(amount, token, wallet_address, middleToken)
-    print("tx = ", tx)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
     tx_hash = dex.hash(signed_tx)
     print("Transaction Hash = ", tx_hash)
@@ -41,7 +40,6 @@ def sell(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_
     if not dex.check_approval(wallet_address, token):
         raise Exception("UnapprovedExpection: " + wallet_address)
     tx = dex.swapFromTokensToBase(amount, token, wallet_address, middleToken)
-    print("tx = ", tx)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
     tx_hash = dex.hash(signed_tx)
     print("Transaction Hash = ", tx_hash)
@@ -53,7 +51,6 @@ def sell(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_
 
 def approve(dex: multidex.Dex, token: str, wallet_address: str, private_key: str):
     tx = dex.approve(token=token, address=wallet_address)
-    print("tx = ", tx)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
     tx_hash = dex.hash(signed_tx)
     print("Transaction Hash = ", tx_hash)
@@ -62,7 +59,6 @@ def approve(dex: multidex.Dex, token: str, wallet_address: str, private_key: str
         raise Exception("TransactionExpection: " + tx_hash.hex())
     tx["hash"] = tx_hash.hex()
     return tx
-
 
 async def demo():
     dex0 = multidex.Stellaswap()
@@ -145,6 +141,7 @@ async def main(
         raise Exception("amount {} >= balance {}".format(amount, inBalance))
 
     # swap from base to token
+    print("{}: swap base to token: amount {}".format(dex_high.platform, amount))
     tx = buy(dex_high, dex_high_token, amount, path_high_middleToken, wallet_address, private_key)
     print(tx)
 
@@ -154,6 +151,7 @@ async def main(
     # swap from token to base
     last_outBalance = dex0.balance(wallet_address, path_high_outToken)
     amount = last_outBalance - outBalance
+    print("{}: swap token to base: amount {}".format(dex_low.platform, amount))
     tx = sell(dex_low, dex_low_token, amount, path_low_middleToken, wallet_address, private_key)
     print(tx)
 
