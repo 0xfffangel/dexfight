@@ -23,41 +23,29 @@ def price_impact_token(dex: multidex.Dex, amount: float, inToken: str, outToken:
     print("price_impact_token: amount {} price {} newprice {} price_impact {}".format(amount, price, newprice, price_impact))
     return price_impact
 
-def buy(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_address: str, private_key: str):
-    if not dex.check_approval(wallet_address, token):
-        raise Exception("UnapprovedExpection: " + wallet_address)
-    tx = dex.swapFromBaseToTokens(amount, token, wallet_address, middleToken)
+def buy(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_address: str, private_key: str, nonce: int = None):
+    tx = dex.swapFromBaseToTokens(amount, token, wallet_address, middleToken, nonce=nonce)
+    print(tx)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
-    tx_hash = dex.hash(signed_tx)
-    print("Transaction Hash = ", tx_hash)
     tx_hash = dex.sendTransaction(signed_transaction = signed_tx)
-    if not dex.waitTransaction(tx_hash):
-        raise Exception("TransactionExpection: " + tx_hash.hex())
-    tx["hash"] = tx_hash.hex()
+    tx["hash"] = tx_hash
     return tx
 
-def sell(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_address: str, private_key: str):
-    if not dex.check_approval(wallet_address, token):
-        raise Exception("UnapprovedExpection: " + wallet_address)
-    tx = dex.swapFromTokensToBase(amount, token, wallet_address, middleToken)
+def sell(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_address: str, private_key: str, nonce: int = None):
+    tx = dex.swapFromTokensToBase(amount, token, wallet_address, middleToken, nonce=nonce)
+    print(tx)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
-    tx_hash = dex.hash(signed_tx)
-    print("Transaction Hash = ", tx_hash)
     tx_hash = dex.sendTransaction(signed_transaction = signed_tx)
-    if not dex.waitTransaction(tx_hash):
-        raise Exception("TransactionExpection: " + tx_hash.hex())
-    tx["hash"] = tx_hash.hex()
+    tx["hash"] = tx_hash
     return tx
 
 def approve(dex: multidex.Dex, token: str, wallet_address: str, private_key: str):
     tx = dex.approve(token=token, address=wallet_address)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
-    tx_hash = dex.hash(signed_tx)
-    print("Transaction Hash = ", tx_hash)
     tx_hash = dex.sendTransaction(signed_transaction = signed_tx)
+    tx["hash"] = tx_hash
     if not dex.waitTransaction(tx_hash):
         raise Exception("TransactionExpection: " + tx_hash.hex())
-    tx["hash"] = tx_hash.hex()
     return tx
 
 async def demo():
@@ -123,11 +111,13 @@ async def main(
     dex_high_token = path_high_outToken if path_high_inToken is None or path_high_inToken == dex0.base_address else path_high_inToken
     if not dex_high.check_approval(wallet_address, dex_high_token):
         print("approve token {} on {}".format(dex_high_token, dex_high.platform))
-        approve(dex_high, dex_high_token, wallet_address, private_key)
+        tx = approve(dex_high, dex_high_token, wallet_address, private_key)
+        print("Transaction Hash = ", tx['hash'].hex())
     dex_low_token = path_low_outToken if path_low_inToken is None or path_low_inToken == dex1.base_address else path_low_inToken
     if not dex_low.check_approval(wallet_address, dex_low_token):
         print("approve token {} on {}".format(dex_low_token, dex_low.platform))
-        approve(dex_low, dex_low_token, wallet_address, private_key)
+        tx = approve(dex_low, dex_low_token, wallet_address, private_key)
+        print("Transaction Hash = ", tx['hash'].hex())
 
     # check amount in balance
     inBalance = dex0.balance(wallet_address, path0_inToken)
@@ -142,25 +132,34 @@ async def main(
 
     # swap from base to token
     print("{}: swap base to token: amount {}".format(dex_high.platform, amount))
-    tx = buy(dex_high, dex_high_token, amount, path_high_middleToken, wallet_address, private_key)
-    print(tx)
+    tx_buy = buy(dex_high, dex_high_token, amount, path_high_middleToken, wallet_address, private_key)
+    print("Transaction Hash = ", tx_buy['hash'].hex())
 
-    print("{}: inBalance {}".format(path_high_inToken, dex_high.balance(wallet_address, path_high_inToken)))
-    print("{}: outBalance {}".format(path_high_outToken, dex_high.balance(wallet_address, path_high_outToken)))
+    #print("{}: inBalance {}".format(path_high_inToken, dex_high.balance(wallet_address, path_high_inToken)))
+    #print("{}: outBalance {}".format(path_high_outToken, dex_high.balance(wallet_address, path_high_outToken)))
 
     # swap from token to base
-    last_outBalance = dex0.balance(wallet_address, path_high_outToken)
-    amount = last_outBalance - outBalance
+    #last_outBalance = dex0.balance(wallet_address, path_high_outToken)
+    #amount = last_outBalance - outBalance
+    # simulate amount
+    #amount = amount_token * (1 - price_impact_high)
+    amount = dex_low.price(path_low_inToken, path_low_outToken, path_low_middleToken, amount)
+    nonce = tx_buy["nonce"] + 1
     print("{}: swap token to base: amount {}".format(dex_low.platform, amount))
-    tx = sell(dex_low, dex_low_token, amount, path_low_middleToken, wallet_address, private_key)
-    print(tx)
+    tx_sell = sell(dex_low, dex_low_token, amount, path_low_middleToken, wallet_address, private_key, nonce=nonce)
+    print("Transaction Hash = ", tx_sell['hash'].hex())
 
-    print("{}: inBalance {}".format(path_low_inToken, dex0.balance(wallet_address, path_low_inToken)))
-    print("{}: outBalance {}".format(path_low_outToken, dex0.balance(wallet_address, path_low_outToken)))
+    # wait transactions
+    if not dex_high.waitTransaction(tx_buy['hash']):
+        raise Exception("TransactionExpection: " + tx_buy['hash'].hex())
+    if not dex_low.waitTransaction(tx_sell['hash']):
+        raise Exception("TransactionExpection: " + tx_sell['hash'].hex())
 
     # profit / loss
     last_inBalance = dex0.balance(wallet_address, path_low_inToken)
     last_outBalance = dex0.balance(wallet_address, path_low_outToken)
+    print("{}: inBalance {}".format(path_low_inToken, last_inBalance))
+    print("{}: outBalance {}".format(path_low_outToken, last_outBalance))
     print("earn {}: {}".format(path_low_inToken, last_inBalance - inBalance))
     print("earn {}: {}".format(path_low_outToken, last_outBalance - outBalance))
 
