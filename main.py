@@ -8,9 +8,6 @@ def get_arguments():
     parser.add_argument("-i", "--input", help = "Select input token address (default base address)")
     parser.add_argument("-o", "--output", help = "Select output token address (default base address)")
     parser.add_argument("-r", "--routing", help = "Allow intermediate token address (default disabled, * = custom dex token)")
-    parser.add_argument("-j", "--indecimals", help = "Set input token decimals (default 18)")
-    parser.add_argument("-q", "--outdecimals", help = "Set output token decimals (default 18)")
-    parser.add_argument("-p", "--routedecimals", help = "Set intermediate token decimals (default 18)")
     return parser.parse_args()
 
 async def main():
@@ -23,14 +20,7 @@ async def main():
         output = args.output if args.output is not None else dex.base_address
         intermediate = args.routing if args.routing is not None else None
         intermediate = dex.token if args.routing == "*" else intermediate
-
         if dex.exist(input, output, intermediate):
-            if args.indecimals is not None:
-                dex.decimals(input, fallback = int(args.indecimals))
-            if args.outdecimals is not None:
-                dex.decimals(output, fallback = int(args.outdecimals))
-            if args.routedecimals is not None:
-                dex.decimals(intermediate, fallback = int(args.routedecimals))
             value = {
                 'price': dex.price(input, output, intermediate),
                 'reserve_ratio': dex.reserve_ratio(input, output, intermediate, refresh = True),
