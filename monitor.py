@@ -8,8 +8,8 @@ import json
 import logging
 
 class Config:
-    def __init__(self, base, input, output, routing, indecimals, outdecimals, min_gap, min_base_liquidity, timeout, daemon):
-        self.base = base
+    def __init__(self, chain, input, output, routing, indecimals, outdecimals, min_gap, min_base_liquidity, timeout, daemon):
+        self.chain = chain
         self.input = input
         self.output = output
         self.routing = routing
@@ -33,7 +33,7 @@ class Config:
 
     @staticmethod
     def from_json(json):
-      return Config(json['base'],
+      return Config(json['chain'],
                    json['input'], json['output'], json['routing'],
                    json['indecimals'], json['outdecimals'], json['min_gap'], json['min_base_liquidity'],
                    json['timeout'], json['daemon'])
@@ -56,24 +56,19 @@ async def looper():
 
 async def main(conf):
     values = {}
-    for dex in multidex.__all__:
-        if dex.base_symbol == conf.base:
-            input = conf.input if conf.input is not None else dex.base_address
-            output = conf.output if conf.output is not None else dex.base_address
-            if conf.indecimals is not None:
-                dex.decimals(input, fallback = int(conf.indecimals))
-            if conf.outdecimals is not None:
-                dex.decimals(output, fallback = int(conf.outdecimals))
-            intermediate = None
-            if dex.exist(input, output):
-                value = dex_read(dex, input, output)
-                if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
-                    values[dex.platform] = value
-            intermediate = dex.token
-            if dex.exist(input, output, intermediate):
-                value = dex_read(dex, input, output, intermediate)
-                if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
-                    values[dex.platform + "_dexcoin"] = value
+    for dex in multidex.all[conf.chain.lower()]:
+        input = conf.input if conf.input is not None else dex.base_address
+        output = conf.output if conf.output is not None else dex.base_address
+        intermediate = None
+        if dex.exist(input, output):
+            value = dex_read(dex, input, output)
+            if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
+                values[dex.platform] = value
+        intermediate = dex.token
+        if dex.exist(input, output, intermediate):
+            value = dex_read(dex, input, output, intermediate)
+            if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
+                values[dex.platform + "_dexcoin"] = value
 
     res = []
     for k, v in values.items():

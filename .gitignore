@@ -3,5 +3,6 @@ venv
 *.log
 *.csv
 configs
+wallets
 logs
 __pycache__

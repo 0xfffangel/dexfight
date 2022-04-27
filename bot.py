@@ -7,7 +7,8 @@ import sys
 import asyncio
 import json
 
-conf_dir = 'configs'
+config_dir = 'configs'
+wallet_dir = 'wallets'
 log_file = 'bot.log'
 
 file_handler = logging.FileHandler(filename=log_file)
@@ -31,8 +32,8 @@ async def looper():
         #    await asyncio.sleep(30)
 
 async def main():
-    for filename in os.listdir(conf_dir):
-        f = os.path.join(conf_dir, filename)
+    for filename in os.listdir(config_dir):
+        f = os.path.join(config_dir, filename)
         if os.path.isfile(f) and filename.startswith('config_') and filename.endswith('.json'):
             conf = monitor.Config.read(f)
             gap = await monitorize(conf, filename)
@@ -54,8 +55,8 @@ async def monitorize(conf: monitor.Config, filename: str):
 async def trading(conf: monitor.Config, gap: dict):
     if gap is None:
         return
-    filename = "wallet_" + conf.base.upper() + ".json"
-    f = os.path.join(conf_dir, filename)
+    filename =  conf.chain.lower() + ".json"
+    f = os.path.join(wallet_dir, filename)
     if not os.path.isfile(f):
         logging.info("> {} not found".format(filename))
         return
@@ -63,7 +64,7 @@ async def trading(conf: monitor.Config, gap: dict):
     walletconf = json.loads(file.read())
     file.close()
 
-    for dex in multidex.__all__:
+    for dex in multidex.all[conf.chain.lower()]:
         if dex.platform == gap['dex0_platform'].replace("_dexcoin", ""):
             dex0 = dex
         if dex.platform == gap['dex1_platform'].replace("_dexcoin", ""):
