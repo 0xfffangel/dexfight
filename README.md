@@ -49,8 +49,8 @@ python monitor.py config_pair.json
 
 Run bot
 ```
-# ./configs/ = pair configs file
-# ./wallets/ = wallet private data
+# ./configs/ = pair configs file, as config.json
+# ./wallets/ = wallet private data, as wallet.json
 
 # GLMR/BUSD
 python bot.py
