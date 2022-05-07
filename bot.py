@@ -23,13 +23,12 @@ logging.basicConfig(
 
 async def looper():
     while True:
-        #try:
-        await main()
-        await asyncio.sleep(30)
-        #except Exception as err:
-        #    print("ERROR", err)
-        #finally:
-        #    await asyncio.sleep(30)
+        try:
+            await main()
+        except Exception as err:
+            print("ERROR", err)
+        finally:
+            await asyncio.sleep(30)
 
 async def main():
     for filename in os.listdir(config_dir):
