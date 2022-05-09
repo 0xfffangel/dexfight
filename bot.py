@@ -34,9 +34,12 @@ async def main():
     for filename in os.listdir(config_dir):
         f = os.path.join(config_dir, filename)
         if os.path.isfile(f) and filename.startswith('config_') and filename.endswith('.json'):
-            conf = monitor.Config.read(f)
-            gap = await monitorize(conf, filename)
-            await trading(conf, gap)
+            try:
+                conf = monitor.Config.read(f)
+                gap = await monitorize(conf, filename)
+                await trading(conf, gap)
+            except Exception as err:
+                print("ERROR", err)
 
 async def monitorize(conf: monitor.Config, filename: str):
     gaps = await monitor.main(conf)
