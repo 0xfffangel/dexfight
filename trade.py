@@ -40,7 +40,7 @@ def sell(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_
     return tx
 
 def approve(dex: multidex.Dex, token: str, wallet_address: str, private_key: str):
-    tx = dex.approve(token=token, address=wallet_address)
+    tx = dex.approve(token=token, wallet_address=wallet_address)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
     tx_hash = dex.sendTransaction(signed_transaction = signed_tx)
     tx["hash"] = tx_hash
