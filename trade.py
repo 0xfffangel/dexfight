@@ -103,9 +103,8 @@ async def main(
     price_impact_low = price_impact_token(dex_low, amount_token, path_low_inToken, path_low_outToken, path_low_middleToken)
     print("filter {}".format(gap - price_impact_low - price_impact_high))
     filter = gap - abs(price_impact_low) - abs(price_impact_high) 
-    #if filter >= min_gap:
-    #    print("filter {} >= min_gap {}".format(filter, min_gap))
-    #    return
+    if filter >= min_gap:
+        raise Exception("filter {} >= min_gap {}".format(filter, min_gap))
 
     # check approvals
     dex_high_token = path_high_outToken if path_high_inToken is None or path_high_inToken == dex0.base_address else path_high_inToken
