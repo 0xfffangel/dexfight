@@ -64,11 +64,11 @@ async def main(conf):
             value = dex_read(dex, input, output)
             if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
                 values[dex.platform] = value
-        intermediate = dex.token
-        if dex.exist(input, output, intermediate):
-            value = dex_read(dex, input, output, intermediate)
-            if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
-                values[dex.platform + "_dexcoin"] = value
+        #intermediate = dex.token
+        #if dex.exist(input, output, intermediate):
+        #    value = dex_read(dex, input, output, intermediate)
+        #    if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
+        #        values[dex.platform + "_dexcoin"] = value
 
     res = []
     for k, v in values.items():
