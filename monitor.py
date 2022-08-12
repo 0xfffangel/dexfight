@@ -8,7 +8,7 @@ import json
 import logging
 
 class Config:
-    def __init__(self, chain, input, output, routing, indecimals, outdecimals, min_gap, min_base_liquidity, timeout, daemon):
+    def __init__(self, chain, input, output, routing, indecimals, outdecimals, min_gap, min_base_liquidity, timeout, daemon, dexes):
         self.chain = chain
         self.input = input
         self.output = output
@@ -19,6 +19,7 @@ class Config:
         self.min_base_liquidity = min_base_liquidity
         self.timeout = timeout
         self.daemon = daemon
+        self.dexes = dexes
     
     @staticmethod
     def read(conf_file):
@@ -36,10 +37,10 @@ class Config:
       return Config(json['chain'],
                    json['input'], json['output'], json['routing'],
                    json['indecimals'], json['outdecimals'], json['min_gap'], json['min_base_liquidity'],
-                   json['timeout'], json['daemon'])
+                   json['timeout'], json['daemon'], json['dexes'])
 
 async def looper():
-    config_file = sys.argv[1]
+    config_file = "config.json"#sys.argv[1]
     conf = Config.read(config_file)
     file_handler = logging.FileHandler(filename=conf.log_file)
     stdout_handler = logging.StreamHandler(sys.stdout)
@@ -56,21 +57,23 @@ async def looper():
 
 async def main(conf):
     values = {}
-    block_number = multidex.all[conf.chain.lower()][0].client.block_number()
+    block_number = multidex.all[conf.chain.lower()][0].block_number()
     print ("block_number: {}".format(block_number))
+
     for dex in multidex.all[conf.chain.lower()]:
-        input = conf.input if conf.input is not None else dex.base_address
-        output = conf.output if conf.output is not None else dex.base_address
-        intermediate = None
-        if dex.exist(input, output):
-            value = dex_read(dex, input, output)
-            if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
-                values[dex.platform] = value
-        #intermediate = dex.token
-        #if dex.exist(input, output, intermediate):
-        #    value = dex_read(dex, input, output, intermediate)
-        #    if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
-        #        values[dex.platform + "_dexcoin"] = value
+        if dex.platform in conf.dexes.split(','):
+            input = conf.input if conf.input is not None else dex.base_address
+            output = conf.output if conf.output is not None else dex.base_address
+            intermediate = None
+            if dex.exist(input, output):
+                value = dex_read(dex, input, output)
+                if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
+                    values[dex.platform] = value
+            #intermediate = dex.token
+            #if dex.exist(input, output, intermediate):
+            #    value = dex_read(dex, input, output, intermediate)
+            #    if value['liquidity_in'] > conf.min_base_liquidity and value['price'] != 0 and value['liquidity_out'] > conf.min_base_liquidity * value['price']:
+            #        values[dex.platform + "_dexcoin"] = value
 
     res = []
     for k, v in values.items():
@@ -86,8 +89,8 @@ async def main(conf):
                 dex1 = dict(map(lambda kv: ('dex1_' + kv[0], kv[1]), vv.items()))
                 out = {**out, **dex0}
                 out = {**out, **dex1}
-                list = out.values()
-                text = ', '.join([str(x) for x in list])
+                list_ = out.values()
+                text = ', '.join([str(x) for x in list_])
                 print(text)
                 appendcsv(conf.csv_file, out)
                 res.append(out)

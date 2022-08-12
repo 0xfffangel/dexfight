@@ -1,12 +1,13 @@
 {
-    "base": "GLMR",
+    "chain": "bsc",
     "input": null,
-    "output": "0x818ec0a7fe18ff94269904fced6ae3dae6d6dc0b",
-    "routing": "*",
+    "output": "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
+    "routing": null,
     "indecimals": null,
     "outdecimals": null,
-    "min_gap": 0.01,
-    "min_base_liquidity": 2,
+    "min_gap": 0.0010,
     "daemon": true,
-    "timeout": 30
+    "timeout": 2,
+    "min_base_liquidity": 1000,
+    "dexes": "biswap,pancakeswap"
 }
