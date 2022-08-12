@@ -56,6 +56,8 @@ async def looper():
 
 async def main(conf):
     values = {}
+    block_number = multidex.all[conf.chain.lower()][0].client.block_number()
+    print ("block_number: {}".format(block_number))
     for dex in multidex.all[conf.chain.lower()]:
         input = conf.input if conf.input is not None else dex.base_address
         output = conf.output if conf.output is not None else dex.base_address
