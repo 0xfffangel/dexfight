@@ -3,7 +3,7 @@ DEX fight
 
 Python price bot for multiple Dex.
 
-Based on [multidex-python](https://github.com/0xfffangel/multidex-python).
+Based on [web3dex-python](https://github.com/0xfffangel/web3dex-python).
 
 ### Install
 ```bash

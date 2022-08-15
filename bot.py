@@ -1,6 +1,6 @@
 import monitor
 import trade
-import multidex
+import web3dex
 import os
 import logging
 import sys
@@ -66,7 +66,7 @@ async def trading(conf: monitor.Config, gap: dict):
     walletconf = json.loads(file.read())
     file.close()
 
-    for dex in multidex.all[conf.chain.lower()]:
+    for dex in web3dex.all[conf.chain.lower()]:
         if dex.platform == gap['dex0_platform'].replace("_dexcoin", ""):
             dex0 = dex
         if dex.platform == gap['dex1_platform'].replace("_dexcoin", ""):

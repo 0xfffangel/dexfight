@@ -1,7 +1,7 @@
-import multidex
+import web3dex
 import asyncio
 
-def price_impact_base(dex: multidex.Dex, amount: float, inToken: str, outToken: str, middleToken: str):
+def price_impact_base(dex: web3dex.Dex, amount: float, inToken: str, outToken: str, middleToken: str):
     liquidity_in = dex.liquidity_in(inToken, outToken, middleToken)
     liquidity_out = dex.liquidity_out(inToken, outToken, middleToken)
     price = liquidity_out / liquidity_in
@@ -12,7 +12,7 @@ def price_impact_base(dex: multidex.Dex, amount: float, inToken: str, outToken: 
     print("price_impact_base: amount {} price {} newprice {} price_impact {}".format(amount, price, newprice, price_impact))
     return price_impact
 
-def price_impact_token(dex: multidex.Dex, amount: float, inToken: str, outToken: str, middleToken: str):
+def price_impact_token(dex: web3dex.Dex, amount: float, inToken: str, outToken: str, middleToken: str):
     liquidity_in = dex.liquidity_in(inToken, outToken, middleToken)
     liquidity_out = dex.liquidity_out(inToken, outToken, middleToken)
     price = liquidity_out / liquidity_in
@@ -23,7 +23,7 @@ def price_impact_token(dex: multidex.Dex, amount: float, inToken: str, outToken:
     print("price_impact_token: amount {} price {} newprice {} price_impact {}".format(amount, price, newprice, price_impact))
     return price_impact
 
-def buy(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_address: str, private_key: str, nonce: int = None):
+def buy(dex: web3dex.Dex, token: str, amount: float, middleToken: str, wallet_address: str, private_key: str, nonce: int = None):
     tx = dex.swapFromBaseToTokens(amount, token, wallet_address, middleToken, nonce=nonce)
     print(tx)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
@@ -31,7 +31,7 @@ def buy(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_a
     tx["hash"] = tx_hash
     return tx
 
-def sell(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_address: str, private_key: str, nonce: int = None):
+def sell(dex: web3dex.Dex, token: str, amount: float, middleToken: str, wallet_address: str, private_key: str, nonce: int = None):
     tx = dex.swapFromTokensToBase(amount, token, wallet_address, middleToken, nonce=nonce)
     print(tx)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
@@ -39,7 +39,7 @@ def sell(dex: multidex.Dex, token: str, amount: float, middleToken: str, wallet_
     tx["hash"] = tx_hash
     return tx
 
-def approve(dex: multidex.Dex, token: str, wallet_address: str, private_key: str):
+def approve(dex: web3dex.Dex, token: str, wallet_address: str, private_key: str):
     tx = dex.approve(token=token, wallet_address=wallet_address)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
     tx_hash = dex.sendTransaction(signed_transaction = signed_tx)
@@ -49,8 +49,8 @@ def approve(dex: multidex.Dex, token: str, wallet_address: str, private_key: str
     return tx
 
 async def demo():
-    dex0 = multidex.Stellaswap()
-    dex1 = multidex.Zenlink()
+    dex0 = web3dex.Stellaswap()
+    dex1 = web3dex.Zenlink()
     await main(
         wallet_address = "",
         private_key = "",
@@ -68,7 +68,7 @@ async def demo():
 
 async def main(
     wallet_address: str, private_key:str,
-    dex0: multidex.Dex, dex1: multidex.Dex, 
+    dex0: web3dex.Dex, dex1: web3dex.Dex, 
     amount: float, min_gap: float,
     path0_inToken: str, path0_outToken: str, path0_middleToken,
     path1_inToken: str, path1_outToken: str, path1_middleToken):

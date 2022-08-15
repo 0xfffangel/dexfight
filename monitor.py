@@ -1,5 +1,5 @@
 import asyncio
-import multidex
+import web3dex
 import datetime
 import calendar
 import sys
@@ -57,10 +57,10 @@ async def looper():
 
 async def main(conf):
     values = {}
-    block_number = multidex.all[conf.chain.lower()][0].block_number()
+    block_number = web3dex.all[conf.chain.lower()][0].block_number()
     print ("block_number: {}".format(block_number))
 
-    for dex in multidex.all[conf.chain.lower()]:
+    for dex in web3dex.all[conf.chain.lower()]:
         if dex.platform in conf.dexes.split(','):
             input = conf.input if conf.input is not None else dex.base_address
             output = conf.output if conf.output is not None else dex.base_address

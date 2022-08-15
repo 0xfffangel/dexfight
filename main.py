@@ -1,5 +1,5 @@
 import asyncio
-import multidex
+import web3dex
 import argparse
 
 def get_arguments():
@@ -15,7 +15,7 @@ async def main():
 
     print("{:<12} {:<20} {:<20} {:<20} {:<20}".format('Dex','Price','Reserve','Liquidity In','Liquidity Out'))
     values = {}
-    for dex in multidex.all[args.chain.lower()]:
+    for dex in web3dex.all[args.chain.lower()]:
         input = args.input if args.input is not None else dex.base_address
         output = args.output if args.output is not None else dex.base_address
         intermediate = args.routing if args.routing is not None else None
