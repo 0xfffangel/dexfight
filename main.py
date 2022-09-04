@@ -13,7 +13,7 @@ def get_arguments():
 async def main():
     args = get_arguments()
 
-    print("{:<12} {:<20} {:<20} {:<20} {:<20}".format('Dex','Price','Reserve','Liquidity In','Liquidity Out'))
+    print("{:<12} {:<20} {:<20} {:<20} {:<20} {:<20}".format('Dex','Price','Reserve','Liquidity In','Liquidity Out', 'Fees'))
     values = {}
     for dex in web3dex.all[args.chain.lower()]:
         input = args.input if args.input is not None else dex.base_address
@@ -25,15 +25,17 @@ async def main():
                 'price': dex.price(input, output, intermediate),
                 'reserve_ratio': dex.reserve_ratio(input, output, intermediate, refresh = True),
                 'liquidity_in': dex.liquidity_in(input, output, intermediate),
-                'liquidity_out': dex.liquidity_out(input, output, intermediate)
+                'liquidity_out': dex.liquidity_out(input, output, intermediate),
+                'fees': dex.fees(input, output, intermediate)
             }
             values[dex.platform] = value
-            print("{:<12} {:<20} {:<20} {:<20} {:<20}".format(
+            print("{:<12} {:<20} {:<20} {:<20} {:<20} {:<20}".format(
                 dex.platform, 
                 value['price'],
                 value['reserve_ratio'],  
                 value['liquidity_in'],
-                value['liquidity_out']))
+                value['liquidity_out'],
+                value['fees']))
     print("")
     header = list(values.keys())
     header.insert(0, "")
