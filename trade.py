@@ -24,7 +24,7 @@ def price_impact_token(dex: web3dex.Dex, amount: float, inToken: str, outToken: 
     return price_impact
 
 def buy(dex: web3dex.Dex, token: str, amount: float, middleToken: str, wallet_address: str, private_key: str, nonce: int = None):
-    tx = dex.swapFromBaseToTokens(amount, token, wallet_address, middleToken, nonce=nonce)
+    tx = dex.swapFromBaseToTokens(amount, token, wallet_address, middleToken, nonce=nonce, in_base=True)
     print(tx)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
     tx_hash = dex.sendTransaction(signed_transaction = signed_tx)
@@ -32,7 +32,7 @@ def buy(dex: web3dex.Dex, token: str, amount: float, middleToken: str, wallet_ad
     return tx
 
 def sell(dex: web3dex.Dex, token: str, amount: float, middleToken: str, wallet_address: str, private_key: str, nonce: int = None):
-    tx = dex.swapFromTokensToBase(amount, token, wallet_address, middleToken, nonce=nonce)
+    tx = dex.swapFromTokensToBase(amount, token, wallet_address, middleToken, nonce=nonce, in_base=True)
     print(tx)
     signed_tx = dex.signTransaction(transaction = tx, private_key = private_key)
     tx_hash = dex.sendTransaction(signed_transaction = signed_tx)
@@ -142,7 +142,7 @@ async def main(
     #amount = last_outBalance - outBalance
     # simulate amount
     #amount = amount_token * (1 - price_impact_high)
-    amount = dex_low.price(path_low_inToken, path_low_outToken, path_low_middleToken, amount)
+    #amount = dex_low.price(path_low_inToken, path_low_outToken, path_low_middleToken, amount)
     nonce = tx_buy["nonce"] + 1
     print("{}: swap token to base: amount {}".format(dex_low.platform, amount))
     tx_sell = sell(dex_low, dex_low_token, amount, path_low_middleToken, wallet_address, private_key, nonce=nonce)
